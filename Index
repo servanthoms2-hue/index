@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام مراقبة الدوام - فندق النخبة</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* الهيدر */
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .hotel-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+
+        /* شريط الحالة */
+        .status-bar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .date-time {
+            font-size: 1.2em;
+            color: #2c3e50;
+        }
+
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-dot.offline {
+            background: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* الأقسام الرئيسية */
+        .main-content {
+            padding: 30px;
+        }
+
+        .sections-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* قسم تسجيل الدخول/الخروج */
+        .attendance-section, .employees-section, .reports-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #2a5298;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #495057;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* جدول الموظفين */
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        th {
+            background: #1e3c72;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background: #f1f3f5;
+        }
+
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .status-present {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-absent {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-late {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        /* قسم التقارير */
+        .reports-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .report-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* زر التحديث */
+        .sync-section {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #dee2e6;
+        }
+
+        .sync-status {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #6c757d;
+        }
+
+        /* التصميم المتجاوب */
+        @media (max-width: 768px) {
+            .sections-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .status-bar {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- الهيدر -->
+        <div class="header">
+            <h1>🌟 فندق النخبة الملكية 🌟</h1>
+            <p>نظام مراقبة الدوام المتطور | خمس نجوم</p>
+            <div class="hotel-badge">
+                <span>⭐ إدارة الموارد البشرية ⭐</span>
+            </div>
+        </div>
+
+        <!-- شريط الحالة -->
+        <div class="status-bar">
+            <div class="date-time" id="currentDateTime"></div>
+            <div class="connection-status">
+                <span>حالة الاتصال:</span>
+                <div class="status-dot" id="connectionStatus"></div>
+                <span id="connectionText">متصل</span>
+            </div>
+        </div>
+
+        <!-- المحتوى الرئيسي -->
+        <div class="main-content">
+            <div class="sections-grid">
+                <!-- قسم تسجيل الدخول/الخروج -->
+                <div class="attendance-section">
+                    <h2 class="section-title">
+                        <span>📋</span> تسجيل الحضور والانصراف
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label>اختر الموظف</label>
+                        <select class="form-control" id="employeeSelect">
+                            <option value="">-- اختر الموظف --</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>القسم</label>
+                        <select class="form-control" id="departmentSelect">
+                            <option value="الاستقبال">الاستقبال</option>
+                            <option value="التدبير المنزلي">التدبير المنزلي</option>
+                            <option value="المطاعم">المطاعم</option>
+                            <option value="الأمن">الأمن</option>
+                            <option value="الصيانة">الصيانة</option>
+                            <option value="الإدارة">الإدارة</option>
+                        </select>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-success" id="checkInBtn" onclick="checkIn()">
+                            <span>✅</span> تسجيل دخول
+                        </button>
+                        <button class="btn btn-danger" id="checkOutBtn" onclick="checkOut()">
+                            <span>🚪</span> تسجيل خروج
+                        </button>
+                    </div>
+                </div>
+
+                <!-- قسم الموظفين -->
+                <div class="employees-section">
+                    <h2 class="section-title">
+                        <span>👥</span> الموظفين الحاليين
+                    </h2>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="🔍 بحث عن موظف..." id="searchEmployee">
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="employeesTable">
+                            <thead>
+                                <tr>
+                                    <th>الموظف</th>
+                                    <th>القسم</th>
+                                    <th>الحالة</th>
+                                    <th>وقت الدخول</th>
+                                </tr>
+                            </thead>
+                            <tbody id="currentEmployees">
+                                <!-- يتم ملؤها بالجافاسكريبت -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-primary" onclick="addNewEmployee()">
+                            <span>➕</span> إضافة موظف جديد
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم التقارير -->
+            <div class="reports-section">
+                <h2 class="section-title">
+                    <span>📊</span> تقارير الدوام
+                </h2>
+
+                <div class="reports-filter">
+                    <select class="form-control" id="reportType" style="width: auto;">
+                        <option value="daily">تقرير يومي</option>
+                        <option value="weekly">تقرير أسبوعي</option>
+                        <option value="monthly">تقرير شهري</option>
+                    </select>
+
+                    <input type="date" class="form-control" id="reportDate" style="width: auto;">
+
+                    <button class="btn btn-primary" onclick="generateReport()">
+                        <span>📄</span> عرض التقرير
+                    </button>
+                </div>
+
+                <div id="reportContent">
+                    <!-- محتوى التقرير -->
+                </div>
+            </div>
+
+            <!-- قسم المزامنة -->
+            <div class="sync-section">
+                <button class="btn btn-warning" onclick="syncData()" id="syncBtn">
+                    <span>🔄</span> مزامنة البيانات
+                </button>
+                <div class="sync-status" id="syncStatus">
+                    آخر مزامنة: <span id="lastSync">لم يتم المزامنة بعد</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // بيانات تجريبية للموظفين
+        let employees = [
+            { id: 1, name: 'أحمد محمد', department: 'الاستقبال', status: 'present', checkIn: '08:00', checkOut: null },
+            { id: 2, name: 'سارة علي', department: 'التدبير المنزلي', status: 'present', checkIn: '08:15', checkOut: null },
+            { id: 3, name: 'محمد خالد', department: 'المطاعم', status: 'absent', checkIn: null, checkOut: null },
+            { id: 4, name: 'نورة عبدالله', department: 'الإدارة', status: 'late', checkIn: '09:30', checkOut: null },
+            { id: 5, name: 'عمر حسن', department: 'الأمن', status: 'present', checkIn: '07:45', checkOut: null },
+        ];
+
+        let attendanceRecords = [];
+
+        // تحميل البيانات من التخزين المحلي
+        function loadFromStorage() {
+            const savedEmployees = localStorage.getItem('hotel_employees');
+            const savedRecords = localStorage.getItem('hotel_attendance');
+            
+            if (savedEmployees) {
+                employees = JSON.parse(savedEmployees);
+            }
+            if (savedRecords) {
+                attendanceRecords = JSON.parse(savedRecords);
+            }
+        }
+
+        // حفظ البيانات في التخزين المحلي
+        function saveToStorage() {
+            localStorage.setItem('hotel_employees', JSON.stringify(employees));
+            localStorage.setItem('hotel_attendance', JSON.stringify(attendanceRecords));
+            updateLastSyncTime();
+        }
+
+        // تحديث آخر مزامنة
+        function updateLastSyncTime() {
+            const now = new Date();
+            document.getElementById('lastSync').textContent = now.toLocaleString('ar-SA');
+        }
+
+        // عرض التاريخ والوقت
+        function updateDateTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('ar-SA', options);
+        }
+
+        // تحديث حالة الاتصال
+        function updateConnectionStatus() {
+            const isOnline = navigator.onLine;
+            const statusDot = document.getElementById('connectionStatus');
+            const connectionText = document.getElementById('connectionText');
+            
+            if (isOnline) {
+                statusDot.className = 'status-dot';
+                connectionText.textContent = 'متصل';
+            } else {
+                statusDot.className = 'status-dot offline';
+                connectionText.textContent = 'غير متصل - العمل بدون إنترنت';
+            }
+        }
+
+        // تعبئة قائمة الموظفين
+        function populateEmployeeSelect() {
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">-- اختر الموظف --</option>';
+            
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = `${emp.name} - ${emp.department}`;
+                select.appendChild(option);
+            });
+        }
+
+        // عرض الموظفين الحاليين
+        function displayCurrentEmployees() {
+            const tbody = document.getElementById('currentEmployees');
+            tbody.innerHTML = '';
+
+            employees.forEach(emp => {
+                const row = document.createElement('tr');
+                
+                let statusClass = '';
+                let statusText = '';
+                
+                switch(emp.status) {
+                    case 'present':
+                        statusClass = 'status-present';
+                        statusText = 'موجود';
+                        break;
+                    case 'absent':
+                        statusClass = 'status-absent';
+                        statusText = 'غائب';
+                        break;
+                    case 'late':
+                        statusClass = 'status-late';
+                        statusText = 'متأخر';
+                        break;
+                }
+
+                row.innerHTML = `
+                    <td>${emp.name}</td>
+                    <td>${emp.department}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${emp.checkIn || '--:--'}</td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // تسجيل دخول
+        function checkIn() {
+            const employeeSelect = document.getElementById('employeeSelect');
+            const department = document.getElementById('departmentSelect').value;
+            const employeeId = parseInt(employeeSelect.value);
+
+            if (!employeeId) {
+                alert('الرجاء اختيار موظف');
+                return;
+            }
+
+            const employee = employees.find(e => e.id === employeeId);
+            const now = new Date();
+            const time = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+            
+            // التحقق من التأخير (بعد 9 صباحاً)
+            const hour = now.getHours();
+            if (hour >= 9) {
+                employee.status = 'late';
+            } else {
+                employee.status = 'present';
+            }
+            
+            employee.checkIn = time;
+            employee.checkOut = null;
+
+            // تسجيل في سجل الحضور
+            attendanceRecords.push({
+                employeeId: employee.id,
+                employeeName: employee.name,
+                action: 'checkin',
+                time: now.toISOString(),
+                department: department
+            });
+
+            saveToStorage();
+            displayCurrentEmployees();
+            populateEmployeeSelect();
+            
+            alert(`تم تسجيل دخول ${employee.name} بنجاح`);
+        }
+
+        // تسجيل خروج
+        function checkOut() {
+            const employeeSelect = document.getElementById('employeeSelect');
+            const employeeId = parseInt(employeeSelect.value);
+
+            if (!employeeId) {
+                alert('الرجاء اختيار موظف');
+                return;
+            }
+
+            const employee = employees.find(e => e.id === employeeId);
+            const now = new Date();
+            
+            employee.status = 'absent';
+            employee.checkOut = now.toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+
+            // تسجيل في سجل الحضور
+            attendanceRecords.push({
+                employeeId: employee.id,
+                employeeName: employee.name,
+                action: 'checkout',
+                time: now.toISOString()
+            });
+
+            saveToStorage();
+            displayCurrentEmployees();
+            
+            alert(`تم تسجيل خروج ${employee.name} بنجاح`);
+        }
+
+        // إضافة موظف جديد
+        function addNewEmployee() {
+            const name = prompt('أدخل اسم الموظف:');
+            if (!name) return;
+            
+            const department = prompt('أدخل القسم: (الاستقبال, التدبير المنزلي, المطاعم, الأمن, الصيانة, الإدارة)');
+            if (!department) return;
+
+            const newId = employees.length > 0 ? Math.max(...employees.map(e => e.id)) + 1 : 1;
+            
+            employees.push({
+                id: newId,
+                name: name,
+                department: department,
+                status: 'absent',
+                checkIn: null,
+                checkOut: null
+            });
+
+            saveToStorage();
+            populateEmployeeSelect();
+            displayCurrentEmployees();
+            
+            alert(`تم إضافة الموظف ${name} بنجاح`);
+        }
+
+        // إنشاء تقرير
+        function generateReport() {
+            const reportType = document.getElementById('reportType').value;
+            const reportDate = document.getElementById('reportDate').value;
+            
+            let reportHTML = '<div class="report-card">';
+            reportHTML += `<h3>تقرير ${reportType === 'daily' ? 'يومي' : reportType === 'weekly' ? 'أسبوعي' : 'شهري'}</h3>`;
+            
+            if (reportDate) {
+                reportHTML += `<p>التاريخ: ${new Date(reportDate).toLocaleDateString('ar-SA')}</p>`;
+            }
+            
+            reportHTML += '<table><tr><th>الموظف</th><th>القسم</th><th>الحالة</th><th>وقت الدخول</th><th>وقت الخروج</th></tr>';
+            
+            employees.forEach(emp => {
+                reportHTML += `
+                    <tr>
+                        <td>${emp.name}</td>
+                        <td>${emp.department}</td>
+                        <td>${emp.status === 'present' ? 'موجود' : emp.status === 'late' ? 'متأخر' : 'غائب'}</td>
+                        <td>${emp.checkIn || '--:--'}</td>
+                        <td>${emp.checkOut || '--:--'}</td>
+                    </tr>
+                `;
+            });
+            
+            reportHTML += '</table></div>';
+            
+            document.getElementById('reportContent').innerHTML = reportHTML;
+        }
+
+        // مزامنة البيانات
+        function syncData() {
+            const syncBtn = document.getElementById('syncBtn');
+            const originalText = syncBtn.innerHTML;
+            
+            syncBtn.innerHTML = '<span>⏳</span> جاري المزامنة...';
+            syncBtn.disabled = true;
+            
+            // محاكاة عملية المزامنة
+            setTimeout(() => {
+                saveToStorage();
+                syncBtn.innerHTML = originalText;
+                syncBtn.disabled = false;
+                
+                if (navigator.onLine) {
+                    alert('تمت المزامنة بنجاح مع الخادم');
+                } else {
+                    alert('أنت غير متصل بالإنترنت. تم حفظ البيانات محلياً');
+                }
+            }, 1500);
+        }
+
+        // البحث عن موظف
+        document.getElementById('searchEmployee').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#currentEmployees tr');
+            
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchTerm) ? '' : 'none';
+            });
+        });
+
+        // أحداث الاتصال بالإنترنت
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // التهيئة
+        function init() {
+            loadFromStorage();
+            updateDateTime();
+            updateConnectionStatus();
+            populateEmployeeSelect();
+            displayCurrentEmployees();
+            
+            // تحديث الوقت كل ثانية
+            setInterval(updateDateTime, 1000);
+            
+            // التحقق من الاتصال كل 5 ثواني
+            setInterval(updateConnectionStatus, 5000);
+        }
+
+        // بدء التطبيق
+        init();
+    </script>
+</body>
+</html>
